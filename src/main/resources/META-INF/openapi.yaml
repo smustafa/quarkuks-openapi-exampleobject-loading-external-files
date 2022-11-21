@@ -48,3 +48,17 @@ components:
           - DOWN
           - UP
         type: string
+      Static-MicroProfile:
+        description: microprofile response
+        type: object
+        properties:
+          data:
+            description: "Information of the service. If the service is down, this holds\
+              \ the information of why it is failed."
+            type: object
+          name:
+            description: 'Service Name '
+            type: string
+          status:
+            description: 'Service Status '
+            type: string

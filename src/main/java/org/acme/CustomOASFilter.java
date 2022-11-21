@@ -13,10 +13,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.eclipse.microprofile.openapi.models.PathItem;
+import org.eclipse.microprofile.openapi.models.Paths;
 import org.eclipse.microprofile.openapi.models.examples.Example;
 
 import io.quarkus.logging.Log;
 import org.eclipse.microprofile.openapi.models.media.Schema;
+
+import javax.ws.rs.core.MediaType;
 
 public class CustomOASFilter implements OASFilter {
 
@@ -33,8 +37,7 @@ public class CustomOASFilter implements OASFilter {
 
         generateExamples().forEach(openAPI.getComponents()::addExample);
 
-        //Update REF Programmatically
-        updateHealthStatusRef(openAPI.getComponents());
+        updateHealthStatusRefWithProgrammaticSchema(openAPI);
     }
 
     Map<String, Example> generateExamples() {
@@ -61,16 +64,21 @@ public class CustomOASFilter implements OASFilter {
         return examples;
     }
 
-    void updateHealthStatusRef(Components components) {
+    void updateHealthStatusRefWithProgrammaticSchema(OpenAPI openAPI) {
 
-        components.getSchemas().forEach((schemaName, schemaObject) -> {
+        openAPI.getPaths().getPathItems().forEach((String pathName, PathItem pathItem) -> {
+            if (pathName.equalsIgnoreCase("/health-check")) {
+                pathItem.getGET().getResponses().getAPIResponse("200").getContent().getMediaType("application/json").setSchema(OASFactory.createSchema().title("Programmatic-MicroProfile").description("wheeeeeeeeeeeeeeeeeeeeeee").type(Schema.SchemaType.OBJECT).properties(Map.of("custom-field-data", OASFactory.createSchema().description("Information of the service. If the service is down, this holds the information of why it is failed.").type(Schema.SchemaType.OBJECT))));
+            }
+        });
+    }
 
-            if (schemaName.equalsIgnoreCase("HealthCheckResponse")) {
+    void updateHealthStatusRefByUsingStaticSchema(OpenAPI openAPI) {
 
-                Map<String, Schema> modifiableMapCopy = new HashMap<>(schemaObject.getProperties());
-                modifiableMapCopy.put("status", OASFactory.createSchema().title("My Custom Title Here").description("wheeeeeeeeeeeeeeeeeeeeeee").type(Schema.SchemaType.OBJECT).properties(Map.of("data", OASFactory.createSchema().description("Information of the service. If the service is down, this holds the information of why it is failed.").type(Schema.SchemaType.OBJECT))));
-
-                schemaObject.setProperties(modifiableMapCopy);
+        openAPI.getPaths().getPathItems().forEach((String pathName, PathItem pathItem) -> {
+            if (pathName.equalsIgnoreCase("/health-check")) {
+                Schema staticMicroProfileSchema = openAPI.getComponents().getSchemas().get("Static-MicroProfile");
+                pathItem.getGET().getResponses().getAPIResponse("200").getContent().getMediaType(MediaType.APPLICATION_JSON).setSchema(staticMicroProfileSchema);
             }
         });
     }
