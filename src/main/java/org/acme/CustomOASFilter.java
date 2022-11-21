@@ -63,26 +63,26 @@ public class CustomOASFilter implements OASFilter {
         return examples;
     }
 
-        void updateHealthStatusRefWithProgrammaticSchema(OpenAPI openAPI) {
+    void updateHealthStatusRefWithProgrammaticSchema(OpenAPI openAPI) {
 
-            openAPI.getPaths().getPathItems().forEach((String pathName, PathItem pathItem) -> {
-                if (pathName.equalsIgnoreCase("/health-check")) {
+        openAPI.getPaths().getPathItems().forEach((String pathName, PathItem pathItem) -> {
+            if (pathName.equalsIgnoreCase("/health-check")) {
 
-                    Schema dynamicSchema = OASFactory.createSchema().title("Programmatic-MicroProfile").description("dynamic-schema-description").type(Schema.SchemaType.OBJECT).properties(Map.of("custom-field-data", OASFactory.createSchema().description("Information of the service. If the service is down, this holds the information of why it is failed.").type(Schema.SchemaType.OBJECT)));
-                    openAPI.getComponents().addSchema("Dynamic-MicroProfile", dynamicSchema);
+                Schema dynamicSchema = OASFactory.createSchema().title("Programmatic-MicroProfile").description("dynamic-schema-description").type(Schema.SchemaType.OBJECT).properties(Map.of("custom-field-data", OASFactory.createSchema().description("Information of the service. If the service is down, this holds the information of why it is failed.").type(Schema.SchemaType.OBJECT)));
+                openAPI.getComponents().addSchema("Dynamic-MicroProfile", dynamicSchema);
 
-                    pathItem.getGET().getResponses().getAPIResponse("200").getContent().getMediaType("application/json").setSchema(dynamicSchema);
-                }
-            });
-        }
+                pathItem.getGET().getResponses().getAPIResponse("200").getContent().getMediaType("application/json").setSchema(dynamicSchema);
+            }
+        });
+    }
 
-        void updateHealthStatusRefByUsingStaticSchema(OpenAPI openAPI) {
+    void updateHealthStatusRefByUsingStaticSchema(OpenAPI openAPI) {
 
-            openAPI.getPaths().getPathItems().forEach((String pathName, PathItem pathItem) -> {
-                if (pathName.equalsIgnoreCase("/health-check")) {
-                    Schema staticMicroProfileSchema = openAPI.getComponents().getSchemas().get("Static-MicroProfile");
-                    pathItem.getGET().getResponses().getAPIResponse("200").getContent().getMediaType(MediaType.APPLICATION_JSON).setSchema(staticMicroProfileSchema);
-                }
-            });
-        }
+        openAPI.getPaths().getPathItems().forEach((String pathName, PathItem pathItem) -> {
+            if (pathName.equalsIgnoreCase("/health-check")) {
+                Schema staticMicroProfileSchema = openAPI.getComponents().getSchemas().get("Static-MicroProfile");
+                pathItem.getGET().getResponses().getAPIResponse("200").getContent().getMediaType(MediaType.APPLICATION_JSON).setSchema(staticMicroProfileSchema);
+            }
+        });
+    }
 }
