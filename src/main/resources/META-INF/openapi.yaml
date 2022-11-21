@@ -1,0 +1,50 @@
+openapi: 3.0.1
+
+info:
+  version: v1.0
+  title: Health Check Bundle Endpoints
+
+paths:
+  /ping:
+    get:
+      summary: Ping endpoint
+      description: Ping endpoint, that ensures your application is up and running
+      responses:
+        200:
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+        500:
+          description: Error
+  /health-check:
+    get:
+      summary: Health check endpoint
+      description: Health check endpoint, that run registered checkers
+      responses:
+        200:
+          description: All checkers were in success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+
+components:
+  schemas:
+      HealthCheckResponse:
+        type: object
+        properties:
+          data:
+            type: object
+            nullable: true
+          name:
+            type: string
+          status:
+            $ref: '#/components/schemas/HealthCheckStatus'
+      HealthCheckStatus:
+        enum:
+          - DOWN
+          - UP
+        type: string
